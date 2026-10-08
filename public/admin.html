@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Vídeos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #ff2d55;
+      --primary-deep: #e02548;
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface-2: #1e1e1e;
+      --card: #181818;
+      --text: #fff;
+      --muted: #8e8e8e;
+      --stroke: rgba(255,255,255,0.08);
+      --danger: #ff4757;
+      --ok: #2ed573;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+      padding-bottom: 1rem; border-bottom: 1px solid var(--stroke);
+    }
+    .header h1 { font-size: 1.25rem; font-weight: 700; }
+    .header-meta { font-size: 0.8rem; color: var(--muted); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+      padding: 0.55rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+      border: 1px solid var(--stroke); background: var(--surface); color: var(--text);
+      cursor: pointer; text-decoration: none; transition: border-color 0.15s, background 0.15s;
+    }
+    .btn:hover { border-color: var(--primary); }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-deep); border-color: var(--primary-deep); }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.75rem; border-radius: 6px; }
+    .btn-ghost { background: transparent; }
+    .btn-danger { color: var(--danger); border-color: rgba(255,71,87,0.35); }
+    .btn-danger:hover { background: rgba(255,71,87,0.1); }
+
+    .login-box {
+      max-width: 400px; margin: 4rem auto; padding: 2rem;
+      background: var(--card); border: 1px solid var(--stroke); border-radius: 16px;
+    }
+    .login-box h1 { font-size: 1.35rem; margin-bottom: 0.35rem; }
+    .login-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 0.35rem; }
+    .field input, .field textarea, .field select {
+      width: 100%; padding: 0.6rem 0.75rem; border-radius: 8px;
+      border: 1px solid var(--stroke); background: var(--surface-2); color: var(--text);
+      font: inherit; font-size: 0.9rem;
+    }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--primary); }
+    .field textarea { min-height: 80px; resize: vertical; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+    .field-check { display: flex; align-items: center; gap: 0.5rem; }
+    .field-check input { width: auto; }
+
+    .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+    .settings-card {
+      border: 1px solid var(--stroke); border-radius: 12px;
+      background: var(--card); padding: 1rem 1.15rem; margin-bottom: 1.25rem;
+    }
+    .settings-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .settings-card .settings-desc { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .settings-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .settings-row input {
+      flex: 1; min-width: 160px; padding: 0.55rem 0.75rem; border-radius: 8px;
+      border: 1px solid var(--stroke); background: var(--surface-2); color: var(--text);
+      font: inherit; font-size: 0.88rem;
+    }
+    .settings-row input:focus { outline: none; border-color: var(--primary); }
+    .settings-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; }
+    .settings-hint a { color: var(--primary); text-decoration: none; }
+    .settings-hint a:hover { text-decoration: underline; }
+
+    .crypto-edit-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.65rem; }
+    .crypto-edit-row {
+      display: grid; grid-template-columns: 72px 1fr 1.4fr auto; gap: 0.4rem; align-items: center;
+    }
+    @media (max-width: 640px) {
+      .crypto-edit-row { grid-template-columns: 1fr 1fr; }
+      .crypto-edit-row .crypto-address { grid-column: 1 / -1; }
+      .crypto-edit-row .crypto-remove { grid-column: -2 / -1; justify-self: end; }
+    }
+    .crypto-edit-row input {
+      padding: 0.5rem 0.6rem; border-radius: 8px;
+      border: 1px solid var(--stroke); background: var(--surface-2); color: var(--text);
+      font: inherit; font-size: 0.82rem; min-width: 0;
+    }
+    .crypto-edit-row input:focus { outline: none; border-color: var(--primary); }
+    .crypto-empty { font-size: 0.75rem; color: var(--muted); padding: 0.35rem 0; }
+
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+    @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
+
+    .table-wrap {
+      overflow-x: auto; border: 1px solid var(--stroke); border-radius: 12px;
+      background: var(--card);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--stroke); }
+    th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .center { text-align: center; }
+    .muted { color: var(--muted); }
+    .error-text { color: var(--danger); }
+    .actions-cell { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .thumb-cell { width: 72px; padding: 0.5rem !important; }
+    .thumb-img, .thumb-vid {
+      width: 56px; height: 36px; object-fit: cover; border-radius: 6px;
+      background: var(--surface-2); display: block;
+    }
+    .thumb-vid-wrap {
+      width: 56px; height: 36px; border-radius: 6px; overflow: hidden;
+      background: var(--surface-2);
+    }
+    .thumb-placeholder {
+      width: 56px; height: 36px; border-radius: 6px; background: var(--surface-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; color: var(--muted);
+    }
+    .badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700;
+    }
+    .badge-ok { background: rgba(46,213,115,0.15); color: var(--ok); }
+    .badge-off { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 0.75rem; margin: 1.5rem 0 0.65rem;
+    }
+    .section-head h2 { font-size: 0.95rem; font-weight: 700; }
+    .section-head p { font-size: 0.75rem; color: var(--muted); }
+    .purchases-table { margin-bottom: 1.75rem; }
+    .purchases-table td { font-size: 0.82rem; vertical-align: top; }
+    .email-cell { word-break: break-all; }
+
+    .editor-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 2rem 1rem; overflow-y: auto;
+    }
+    .editor-panel {
+      width: 100%; max-width: 640px; background: var(--card);
+      border: 1px solid var(--stroke); border-radius: 16px; padding: 1.5rem;
+    }
+    .editor-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .editor-head h2 { font-size: 1.1rem; }
+    .upload-block {
+      border: 1px dashed var(--stroke); border-radius: 10px;
+      padding: 0.85rem; margin-bottom: 1rem; background: var(--surface);
+    }
+    .upload-block label { font-size: 0.78rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 0.4rem; }
+    .upload-hint { font-size: 0.72rem; color: var(--muted); margin: 0 0 0.5rem; line-height: 1.4; }
+    .video-preview-wrap {
+      margin-top: 0.65rem; border-radius: 8px; overflow: hidden;
+      background: var(--surface-2); max-width: 280px;
+    }
+    .video-preview-wrap video {
+      width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover;
+    }
+    .upload-status { font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; word-break: break-all; }
+    .upload-progress {
+      display: flex; align-items: center; gap: 0.65rem;
+      margin-top: 0.55rem;
+    }
+    .upload-progress-bar {
+      flex: 1; height: 8px; border-radius: 999px;
+      background: rgba(255,255,255,0.08); overflow: hidden;
+    }
+    .upload-progress-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--primary-deep), var(--primary));
+      border-radius: 999px;
+      transition: width 0.15s ease-out;
+    }
+    .upload-progress-fill.done { background: var(--ok, #2ed573); }
+    .upload-progress-pct {
+      font-size: 0.72rem; font-weight: 700; color: var(--primary);
+      min-width: 2.5rem; text-align: right;
+    }
+    .upload-block.is-uploading { border-color: rgba(255, 45, 85, 0.4); }
+    .save-overlay {
+      position: absolute; inset: 0; z-index: 10;
+      background: rgba(10, 10, 10, 0.88);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .save-overlay-inner { width: 100%; max-width: 280px; text-align: center; }
+    .save-overlay-msg {
+      font-size: 0.88rem; font-weight: 600; color: var(--text);
+      margin-bottom: 0.85rem; line-height: 1.45;
+    }
+    .save-overlay .upload-progress-bar { height: 10px; margin-bottom: 0.45rem; }
+    .save-overlay .upload-progress-pct { display: block; text-align: center; font-size: 0.8rem; }
+    .editor-panel { position: relative; }
+    .form-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 300;
+      padding: 0.75rem 1.1rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+      background: var(--surface-2); border: 1px solid var(--stroke);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .toast-error { border-color: rgba(255,71,87,0.5); color: #ff8a95; }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="login-screen" hidden>
+    <div class="login-box">
+      <h1>Admin</h1>
+      <p>Gestão de vídeos — faça login para continuar.</p>
+      <form id="login-form">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required autocomplete="username" placeholder="admin@gmail.com">
+        </div>
+        <div class="field">
+          <label for="login-password">Senha</label>
+          <input type="password" id="login-password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" id="login-btn" style="width:100%;margin-top:0.5rem">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" hidden>
+    <div class="wrap">
+      <header class="header">
+        <div>
+          <h1>Painel de Vídeos</h1>
+          <p class="header-meta">Sessão: <span id="admin-email"></span> · <a href="/" style="color:var(--primary)">Ver loja</a></p>
+        </div>
+        <button type="button" class="btn" id="logout-btn">Sair</button>
+      </header>
+
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="new-video-btn">+ Novo vídeo</button>
+        <button type="button" class="btn" id="refresh-btn">Atualizar</button>
+      </div>
+
+      <section class="settings-card">
+        <h3>Telegram</h3>
+        <p class="settings-desc">Username de suporte na loja (links Support / Help / checkout). Sem @.</p>
+        <div class="settings-row">
+          <input type="text" id="field-telegram" placeholder="ex: meuuser" autocomplete="off" maxlength="64">
+          <button type="button" class="btn btn-primary" id="save-telegram-btn">Guardar</button>
+        </div>
+        <p class="settings-hint" id="telegram-hint"></p>
+      </section>
+
+      <div class="settings-grid">
+        <section class="settings-card" style="margin-bottom:0">
+          <h3>Carteiras Crypto</h3>
+          <p class="settings-desc">Aparecem no checkout crypto da loja. Símbolo (BTC, USDT…), label opcional e endereço.</p>
+          <div class="crypto-edit-list" id="crypto-list"></div>
+          <div class="settings-row">
+            <button type="button" class="btn" id="add-crypto-btn">+ Adicionar carteira</button>
+            <button type="button" class="btn btn-primary" id="save-crypto-btn">Guardar carteiras</button>
+          </div>
+          <p class="settings-hint" id="crypto-hint"></p>
+        </section>
+
+        <section class="settings-card" style="margin-bottom:0">
+          <h3>Conta Admin</h3>
+          <p class="settings-desc">Alterar email ou senha de login. Senha atual sempre obrigatória.</p>
+          <div class="field" style="margin-bottom:0.65rem">
+            <label for="account-email">Email</label>
+            <input type="email" id="account-email" autocomplete="email">
+          </div>
+          <div class="field" style="margin-bottom:0.65rem">
+            <label for="account-current-password">Senha atual *</label>
+            <input type="password" id="account-current-password" autocomplete="current-password">
+          </div>
+          <div class="field" style="margin-bottom:0.65rem">
+            <label for="account-new-password">Nova senha (opcional)</label>
+            <input type="password" id="account-new-password" autocomplete="new-password" placeholder="mín. 6 caracteres">
+          </div>
+          <button type="button" class="btn btn-primary" id="save-account-btn">Atualizar conta</button>
+        </section>
+      </div>
+
+      <div class="section-head">
+        <h2>Pagamentos</h2>
+        <p>Guardados na tabela <code>purchases</code> após PayPal ou PayJSR confirmarem.</p>
+      </div>
+      <div class="table-wrap purchases-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Email</th>
+              <th>Vídeo</th>
+              <th>Valor</th>
+              <th>Método</th>
+              <th>Referência</th>
+            </tr>
+          </thead>
+          <tbody id="purchases-tbody">
+            <tr><td colspan="7" class="muted center">A carregar…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-head">
+        <h2>Vídeos</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Título</th>
+              <th>Preço</th>
+              <th>Views</th>
+              <th>Ordem</th>
+              <th>Estado</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="videos-tbody">
+            <tr><td colspan="7" class="muted center">A carregar…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="editor-panel" class="editor-overlay" hidden>
+    <div class="editor-panel">
+      <div class="editor-head">
+        <h2 id="editor-title">Novo vídeo</h2>
+        <button type="button" class="btn btn-sm" id="close-editor">✕</button>
+      </div>
+
+      <form id="video-form">
+        <input type="hidden" id="field-id">
+
+        <div class="field">
+          <label for="field-title">Título *</label>
+          <input type="text" id="field-title" required maxlength="200">
+        </div>
+
+        <div class="field">
+          <label for="field-description">Descrição</label>
+          <textarea id="field-description" rows="3"></textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="field-price">Preço (USD)</label>
+            <input type="number" id="field-price" min="0" step="0.01" value="0">
+          </div>
+          <div class="field">
+            <label for="field-duration">Duração</label>
+            <input type="text" id="field-duration" placeholder="ex: 12:34">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="field-sort_order">Ordem na loja</label>
+            <input type="number" id="field-sort_order" value="0">
+          </div>
+          <div class="field">
+            <label for="field-poster_at">Thumbnail (segundo do vídeo)</label>
+            <input type="number" id="field-poster_at" min="0" step="0.1" value="1">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field field-check" style="align-self:end;padding-bottom:0.6rem">
+            <input type="checkbox" id="field-is_active" checked>
+            <label for="field-is_active">Ativo na loja</label>
+          </div>
+        </div>
+
+        <div class="field field-check">
+          <input type="checkbox" id="field-is_free">
+          <label for="field-is_free">Grátis</label>
+        </div>
+
+        <div class="upload-block" id="upload-video-block">
+          <label>Ficheiro de vídeo (Wasabi)</label>
+          <p class="upload-hint">A thumbnail é gerada automaticamente a partir do vídeo no segundo indicado acima.</p>
+          <input type="file" id="pick-video" accept="video/*">
+          <input type="hidden" id="field-video_file_id">
+          <p class="upload-status" id="upload-video-status"></p>
+          <div class="upload-progress" id="upload-video-progress" hidden>
+            <div class="upload-progress-bar"><div class="upload-progress-fill" id="upload-video-fill"></div></div>
+            <span class="upload-progress-pct" id="upload-video-pct">0%</span>
+          </div>
+          <div id="video-preview-wrap" class="video-preview-wrap" hidden>
+            <div id="video-preview-inner"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="field-product_link">Link do produto (opcional, ex. conteúdo grátis)</label>
+          <input type="url" id="field-product_link" placeholder="https://...">
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="save-btn">Guardar</button>
+          <button type="button" class="btn" id="close-editor-2" onclick="document.getElementById('close-editor').click()">Cancelar</button>
+        </div>
+      </form>
+
+      <div id="save-overlay" class="save-overlay" hidden>
+        <div class="save-overlay-inner">
+          <p class="save-overlay-msg" id="save-overlay-msg">A guardar…</p>
+          <div class="upload-progress-bar"><div class="upload-progress-fill" id="save-overlay-fill"></div></div>
+          <span class="upload-progress-pct" id="save-overlay-pct">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/js/storefront.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

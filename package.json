@@ -1,0 +1,22 @@
+{
+  "name": "videos-storefront",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Video storefront with PayJSR checkout",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.758.0",
+    "@aws-sdk/s3-request-presigner": "^3.758.0",
+    "@noble/ed25519": "^3.1.0",
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

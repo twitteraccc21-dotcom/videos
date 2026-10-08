@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: videos-storefront
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SITE_NAME
+        sync: false
+      - key: EBOOKS_SITE_URL
+        sync: false
+      # Fallback aliases read by server.js: VITE_CHECKOUT_URL, VITE_PAYMENT_URL
+      - key: VITE_CHECKOUT_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Optional fallback if você prefere ler só público com política anon:
+      # - key: SUPABASE_ANON_KEY
+      #   sync: false

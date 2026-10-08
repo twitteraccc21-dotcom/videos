@@ -1,0 +1,6 @@
+# Railway: definir Root Directory deste projeto como `videos-site` se o repo tiver outros pastas na raíz.
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "npm start"
