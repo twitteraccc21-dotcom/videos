@@ -4,7 +4,7 @@ const PAYPAL_API = {
   live: 'https://api-m.paypal.com',
   sandbox: 'https://api-m.sandbox.paypal.com',
 };
-const BUNDLE_PRICE = '150.00';
+const BUNDLE_PRICE = '250.00';
 
 function paypalConfig() {
   const clientId = String(process.env.PAYPAL_CLIENT_ID || '').trim();
@@ -100,7 +100,7 @@ export function registerPaypalRoutes(app, { getVideoForCheckout, getAllVideosFor
         }
         purchaseUnit = {
           custom_id: 'full-content-v1',
-          description: 'Full Content — all content available on this site',
+          description: 'All Content Promo — all content available on this site',
           amount: { currency_code: 'USD', value: BUNDLE_PRICE },
         };
       }
@@ -169,7 +169,7 @@ export function registerPaypalRoutes(app, { getVideoForCheckout, getAllVideosFor
       let title = verified.purchaseUnit.description || 'Your purchase';
       let productLink = '';
       if (verified.purchaseUnit.custom_id === 'full-content-v1') {
-        title = 'Full Content';
+        title = 'All Content Promo';
       } else {
         const videoId = verified.purchaseUnit.custom_id.slice('video:'.length);
         const video = typeof getVideoForCheckout === 'function' ? await getVideoForCheckout(videoId) : null;

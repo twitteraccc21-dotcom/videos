@@ -560,7 +560,7 @@
   <main class="container" id="main-content">
     <div class="promo-banner">
       <div class="promo-copy">
-        <div class="promo-title">Full Content for $150</div>
+        <div class="promo-title">All Content Promo — $250</div>
         <div class="promo-sub">Pay now — get the link instantly. No DM, no waiting on Telegram.</div>
       </div>
       <div class="promo-actions">
@@ -893,7 +893,7 @@
       }
 
       function tgUrlForPromo(tgUser) {
-        var msg = telegramInterestMessage('ALL CONTENT', 150);
+        var msg = telegramInterestMessage('ALL CONTENT', 250);
         var enc = encodeURIComponent(msg);
         if (tgUser) return 'https://t.me/' + tgUser + '?text=' + enc;
         return 'https://t.me/share/url?url=&text=' + enc;

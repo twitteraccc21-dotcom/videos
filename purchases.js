@@ -191,7 +191,7 @@ export function createPurchaseRecorder(getSupabase) {
     const payer = paypalPayer(order);
     const orderId = String(order?.id || extras.order_id || extras.transaction_id || '').trim();
     const title = extras.title
-      || (customId === 'full-content-v1' ? 'Full Content' : unit?.description)
+      || (customId === 'full-content-v1' ? 'All Content Promo' : unit?.description)
       || '';
 
     return insertPurchase({

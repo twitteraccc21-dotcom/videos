@@ -50,7 +50,7 @@
     for (var i = 0; i < loc.weight; i++) LOCALE_BAG.push(loc);
   });
 
-  var PROMO = { title: 'All Content', price: 150 };
+  var PROMO = { title: 'All Content Promo', price: 250 };
 
   function escapeHtml(s) {
     return String(s == null ? '' : s)
