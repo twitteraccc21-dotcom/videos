@@ -4,7 +4,7 @@ const PAYPAL_API = {
   live: 'https://api-m.paypal.com',
   sandbox: 'https://api-m.sandbox.paypal.com',
 };
-const BUNDLE_PRICE = '250.00';
+const BUNDLE_PRICE = '100.00';
 
 function paypalConfig() {
   const clientId = String(process.env.PAYPAL_CLIENT_ID || '').trim();

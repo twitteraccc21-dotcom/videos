@@ -378,7 +378,7 @@ export function registerPayjsrRoutes(app, { siteName, getVideoForCheckout, getAl
           return res.status(404).send('This video is unavailable for purchase.');
         }
       }
-      const amountNumber = isBundle ? 250 : Number(video.price);
+      const amountNumber = isBundle ? 100 : Number(video.price);
       if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
         return res.status(400).send('Missing or invalid amount');
       }
