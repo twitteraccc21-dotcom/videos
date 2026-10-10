@@ -1,23 +1,20 @@
 services:
   - type: web
     name: videos-storefront
-    env: node
-    buildCommand: npm install
-    startCommand: node server.js
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: SITE_NAME
-        sync: false
-      - key: EBOOKS_SITE_URL
-        sync: false
-      # Fallback aliases read by server.js: VITE_CHECKOUT_URL, VITE_PAYMENT_URL
-      - key: VITE_CHECKOUT_URL
-        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      # Optional fallback if você prefere ler só público com política anon:
-      # - key: SUPABASE_ANON_KEY
-      #   sync: false
+      # Optional settings can be added in the Render Dashboard when needed:
+      # SITE_NAME, EBOOKS_SITE_URL (or VITE_CHECKOUT_URL / VITE_PAYMENT_URL),
+      # TELEGRAM_USERNAME, PAYJSR_SECRET_KEY (or PAYJSR_API_KEY),
+      # PAYJSR_PAYMENT_LINKS, PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET,
+      # PAYPAL_ENVIRONMENT, WASABI_ACCESS_KEY, WASABI_SECRET_KEY,
+      # WASABI_REGION, WASABI_BUCKET, WASABI_ENDPOINT, CRYPTO_WALLETS_JSON

@@ -463,8 +463,9 @@ if (supabaseUrl && supabaseKey) {
   });
 }
 
-app.get('/api/health', async (req, res) => {
-  const w = await resolveWasabiSigningConfig();
+app.get('/api/health', (req, res) => {
+  // Keep the platform health check independent from Supabase and Wasabi network calls.
+  const wasabiEnv = wasabiSecretFromEnv();
   res.json({
     status: 'OK',
     site: SITE_NAME,
@@ -473,8 +474,8 @@ app.get('/api/health', async (req, res) => {
     payjsr_configured: Boolean(trimEnv('PAYJSR_SECRET_KEY', 'PAYJSR_API_KEY')),
     paypal_configured: Boolean(trimEnv('PAYPAL_CLIENT_ID') && trimEnv('PAYPAL_CLIENT_SECRET')),
     telegram: Boolean(String(TELEGRAM_USERNAME || '').trim()),
-    wasabi_signed_urls: Boolean(w.signingReady),
-    wasabi_from_env: Boolean(wasabiSecretFromEnv().signingReady),
+    wasabi_signed_urls: Boolean(wasabiEnv.signingReady),
+    wasabi_from_env: Boolean(wasabiEnv.signingReady),
   });
 });
 
