@@ -634,16 +634,6 @@
     </div>
   </dialog>
 
-  <dialog id="folder-offer-modal" class="dlg-modal folder-offer-modal" aria-labelledby="folder-offer-title" aria-describedby="folder-offer-message">
-    <div class="dlg-h">
-      <strong id="folder-offer-title">Special offer</strong>
-      <button type="button" class="dlg-x" aria-label="Close offer">×</button>
-    </div>
-    <div class="dlg-b">
-      <p id="folder-offer-message">Buy a folder over $40 and get 1 free of your choice!</p>
-    </div>
-  </dialog>
-
   <footer>
     <div class="trust-footer-row">
       <span>Instant delivery after payment</span>
@@ -655,6 +645,7 @@
 
   <script src="/js/storefront.js"></script>
   <script src="/js/purchase-toasts.js"></script>
+  <script src="/js/privacy-checkout.js"></script>
   <script>
     (function () {
       var EBOOKS_ORIGIN = '{{EBOOKS_SITE_URL}}';
@@ -913,7 +904,9 @@
       }
 
       function startPromoCheckout() {
-        window.location.assign('/api/payjsr-checkout?bundle=all&currency=USD');
+        PrivacyCheckout.open(function () {
+          window.location.assign('/api/payjsr-checkout?bundle=all&currency=USD');
+        }, { priceUsd: 100 });
       }
 
       function setErr(t) {
@@ -937,7 +930,9 @@
         if (!selectedVideoForPayment) return;
         var video = selectedVideoForPayment;
         videoPaymentDialog.close();
-        startCheckout(video.price, null, video.title, video.id);
+        PrivacyCheckout.open(function () {
+          startCheckout(video.price, null, video.title, video.id);
+        }, { priceUsd: video.price });
       });
       document.querySelector('#dlg-video-payment .dlg-x').addEventListener('click', function () { videoPaymentDialog.close(); });
       videoPaymentDialog.addEventListener('close', syncModalBodyClass);
@@ -1346,13 +1341,6 @@
       document.querySelector('#dlg-details .dlg-x').addEventListener('click', function () {
         document.getElementById('dlg-details').close();
       });
-      var folderOffer = document.getElementById('folder-offer-modal');
-      folderOffer.querySelector('.dlg-x').addEventListener('click', function () { folderOffer.close(); });
-      window.setTimeout(function () {
-        if (!folderOffer.open && !document.getElementById('success-page').classList.contains('active')) {
-          folderOffer.showModal();
-        }
-      }, 5000);
       document.getElementById('search').addEventListener('input', function () {
         renderGrid(filterList(this.value), false);
       });
