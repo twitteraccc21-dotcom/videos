@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { registerPayjsrRoutes } from './payjsr-checkout.js';
 import { registerPaypalRoutes } from './paypal-checkout.js';
+import { registerWalledRoutes } from './walled-checkout.js';
 import { createPurchaseRecorder } from './purchases.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -253,11 +253,15 @@ function sanitizeObjectKey(raw) {
   return raw;
 }
 
-app.use(express.json());
+app.use(express.json({ verify: (req, res, buf) => {
+  if (req.originalUrl?.split('?')[0] === '/api/webhooks/walled') req.rawBody = Buffer.from(buf);
+} }));
 const purchaseRecorder = createPurchaseRecorder(() => supabase);
-registerPayjsrRoutes(app, {
-  siteName: SITE_NAME,
-  recordPayjsrPurchase: purchaseRecorder.recordPayjsrPurchase,
+// PayJSR implementation remains available in payjsr-checkout.js for later reuse,
+// but its routes are intentionally not registered while Walled is the active checkout.
+app.locals.getSupabase = () => supabase;
+registerWalledRoutes(app, {
+  recordWalledPurchase: purchaseRecorder.recordWalledPurchase,
   getVideoForCheckout: async (id) => {
     if (!supabase) return null;
     const { data, error } = await supabase
@@ -471,7 +475,8 @@ app.get('/api/health', (req, res) => {
     site: SITE_NAME,
     supabase: Boolean(supabase),
     ebooks_checkout_origin: Boolean(EBOOKS_SITE_URL),
-    payjsr_configured: Boolean(trimEnv('PAYJSR_SECRET_KEY', 'PAYJSR_API_KEY')),
+    payjsr_enabled: false,
+    walled_configured: Boolean(trimEnv('WALLED_API_BASE_URL') && trimEnv('WALLED_APP_ORIGIN') && trimEnv('WALLED_API_KEY') && trimEnv('WALLED_PRODUCT_ID')),
     paypal_configured: Boolean(trimEnv('PAYPAL_CLIENT_ID') && trimEnv('PAYPAL_CLIENT_SECRET')),
     telegram: Boolean(String(TELEGRAM_USERNAME || '').trim()),
     wasabi_signed_urls: Boolean(wasabiEnv.signingReady),

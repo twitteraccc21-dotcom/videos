@@ -1,6 +1,6 @@
 const recordedRefs = new Set();
 
-const PAYMENT_METHODS = new Set(['whop', 'who', 'stripe', 'crypto', 'paypal', 'payjsr']);
+const PAYMENT_METHODS = new Set(['whop', 'who', 'stripe', 'crypto', 'paypal', 'payjsr', 'walled']);
 const STATUSES = new Set(['pending', 'completed', 'failed', 'refunded']);
 
 function isUuid(value) {
@@ -242,6 +242,32 @@ export function createPurchaseRecorder(getSupabase) {
     });
   }
 
+  async function recordWalledPurchase(session, order) {
+    const reference = String(session?.sessionId || order?.session_id || order?.order_id || '').trim();
+    const metadata = order?.metadata && typeof order.metadata === 'object' ? order.metadata : {};
+    const amountMinor = Number(session?.amount ?? order?.amount_minor);
+    const result = await insertPurchase({
+      video_id: order?.video_id,
+      buyer_email: session?.customerEmail,
+      transaction_id: reference,
+      payment_method: 'walled',
+      amount: Number.isFinite(amountMinor) ? amountMinor / 100 : 0,
+      currency: session?.currency || order?.currency || 'USD',
+      status: 'completed',
+      video_title: order?.title || metadata.title || 'Digital purchase',
+      metadata: {
+        provider: 'walled',
+        walled_order_id: order?.order_id || null,
+        walled_session_id: session?.sessionId || order?.session_id || null,
+        walled_transaction_id: session?.transactionId || null,
+        bundle: order?.bundle ? 'all' : null,
+        environment: session?.environment || order?.environment || null,
+      },
+    });
+    if (!result.ok) throw new Error(`Could not save Walled purchase: ${result.error || 'unknown error'}`);
+    return result;
+  }
+
   async function listPurchases() {
     const supabase = typeof getSupabase === 'function' ? getSupabase() : null;
     if (!supabase) return [];
@@ -264,6 +290,7 @@ export function createPurchaseRecorder(getSupabase) {
   return {
     recordPaypalPurchase,
     recordPayjsrPurchase,
+    recordWalledPurchase,
     listPurchases,
   };
 }

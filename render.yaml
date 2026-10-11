@@ -12,9 +12,22 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: WALLED_API_BASE_URL
+        sync: false
+      - key: WALLED_APP_ORIGIN
+        sync: false
+      - key: WALLED_API_KEY
+        sync: false
+      - key: WALLED_PRODUCT_ID
+        sync: false
+      - key: WALLED_WEBHOOK_SECRET
+        sync: false
+      - key: WALLED_VARIABLE_PRICING
+        value: "false"
+      - key: WALLED_FIXED_PRODUCTS_JSON
+        sync: false
       # Optional settings can be added in the Render Dashboard when needed:
       # SITE_NAME, EBOOKS_SITE_URL (or VITE_CHECKOUT_URL / VITE_PAYMENT_URL),
-      # TELEGRAM_USERNAME, PAYJSR_SECRET_KEY (or PAYJSR_API_KEY),
-      # PAYJSR_PAYMENT_LINKS, PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET,
+      # TELEGRAM_USERNAME, PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET,
       # PAYPAL_ENVIRONMENT, WASABI_ACCESS_KEY, WASABI_SECRET_KEY,
       # WASABI_REGION, WASABI_BUCKET, WASABI_ENDPOINT, CRYPTO_WALLETS_JSON

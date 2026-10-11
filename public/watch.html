@@ -419,7 +419,7 @@
     <div class="dlg-b">
       <p>Pay now and get the link instantly. <strong>No DM needed.</strong> Checkout uses the generic product name <strong style="color:var(--text)">Digital Ebook</strong>.</p>
       <div class="video-payment-methods">
-        <button type="button" class="btn btn-primary btn-pay-cta" id="privacy-checkout-payjsr"><span class="btn-pay-inner"><span class="btn-pay-text">Pay Instantly</span>
+        <button type="button" class="btn btn-primary btn-pay-cta" id="privacy-checkout-pay"><span class="btn-pay-inner"><span class="btn-pay-text">Pay Instantly</span>
           <span class="pay-method-icons" aria-label="Payment methods: card, Apple Pay, Amazon Pay, and Cash App">
             <span class="pay-method-badge" title="Card" aria-label="Card"><svg class="pay-icon-card" viewBox="0 0 24 16" fill="none" aria-hidden="true"><rect x="1" y="1" width="22" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 5h20" stroke="currentColor" stroke-width="2"/></svg></span>
             <span class="pay-method-badge" title="Apple Pay" aria-label="Apple Pay"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.36 12.28c.02 2.06 1.81 2.75 1.83 2.76-.02.05-.29 1.02-.95 2.02-.57.86-1.17 1.71-2.11 1.73-.92.02-1.22-.56-2.28-.56-1.05 0-1.39.54-2.26.58-.9.03-1.59-.92-2.17-1.77-1.18-1.71-2.08-4.84-.87-6.95.6-1.05 1.68-1.72 2.85-1.74.89-.02 1.73.6 2.28.6.54 0 1.56-.74 2.63-.63.45.02 1.72.18 2.54 1.38-.07.04-1.52.89-1.5 2.58ZM14.63 5.78c.48-.58.8-1.39.71-2.2-.69.03-1.53.46-2.03 1.04-.45.52-.84 1.35-.73 2.14.77.06 1.57-.39 2.05-.98Z"/></svg></span>
@@ -564,26 +564,14 @@
         if (tg) params.set('telegram_username', tg);
         return origin + '/?' + params.toString();
       }
-      function checkoutUrl(price, maskedName, displayTitle, videoId, method) {
-        var origin = checkoutOrigin();
-        var masked = pickMaskedName(maskedName);
-        var successUrl = successReturnUrl(price, masked, displayTitle || 'Digital purchase', videoId);
-        var p2 = new URLSearchParams();
-        p2.set('amount', String(price));
-        p2.set('currency', 'USD');
-        p2.set('success_url', successUrl);
-        p2.set('product_name', masked);
-        p2.set('display_title', displayTitle || 'Digital purchase');
-        p2.set('method', 'payjsr');
-        if (videoId) p2.set('video_id', videoId);
-        var tgCheckout = (tgUser || TG_ENV || '').replace(/^@/, '').trim();
-        if (tgCheckout) p2.set('telegram_username', tgCheckout);
-        var apiPath = '/api/payjsr-checkout';
-        var cancelBack = videoId
-          ? '/watch?id=' + encodeURIComponent(String(videoId)) + '&payment_canceled=true'
-          : '/?payment_canceled=true';
-        p2.set('cancel_url', origin + cancelBack);
-        return origin + apiPath + '?' + p2.toString();
+      function checkoutRequestKey(videoId) {
+        var storageKey = 'walled-checkout:video:' + String(videoId || '');
+        var key = sessionStorage.getItem(storageKey);
+        if (!key) {
+          key = crypto.randomUUID();
+          sessionStorage.setItem(storageKey, key);
+        }
+        return { key: key, storageKey: storageKey };
       }
       function formatTelegramPrice(value) {
         var price = Number(value) || 0;
@@ -597,9 +585,32 @@
         var enc = encodeURIComponent(telegramInterestMessage(v.title, v.price));
         return tgUser ? 'https://t.me/' + tgUser + '?text=' + enc : 'https://t.me/share/url?url=&text=' + enc;
       }
-      function startCheckout(price, maskedName, displayTitle, videoId) {
-        var targetUrl = checkoutUrl(price, maskedName, displayTitle, videoId, 'payjsr');
-        if (targetUrl) window.location.assign(targetUrl);
+      async function startCheckout(price, maskedName, displayTitle, videoId) {
+        var request = checkoutRequestKey(videoId);
+        try {
+          var body = { videoId: String(videoId || ''), requestKey: request.key };
+          var response = await fetch('/api/walled-checkout', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          var result = await response.json();
+          if (response.ok && result.priceAdjustmentRequired) {
+            var requested = (Number(result.requestedAmountMinor) / 100).toFixed(2);
+            var charged = (Number(result.chargedAmountMinor) / 100).toFixed(2);
+            if (!window.confirm('This video is listed at $' + requested + ' USD. The closest available checkout product charges $' + charged + ' USD. Continue at that price?')) return;
+            body.acceptedAmountMinor = Number(result.chargedAmountMinor);
+            response = await fetch('/api/walled-checkout', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            });
+            result = await response.json();
+          }
+          if (!response.ok || !result.checkoutUrl) throw new Error(result.error || 'Could not start checkout.');
+          sessionStorage.removeItem(request.storageKey);
+          window.location.assign(result.checkoutUrl);
+        } catch (error) {
+          setErr(error.message || 'Could not start checkout. Please try again.');
+        }
       }
       function setErr(t) { var el = document.getElementById('err-banner'); el.textContent = t || ''; el.hidden = !t; }
       function parseUrlParams() {
@@ -690,7 +701,7 @@
       var privacyDialog = document.getElementById('privacy-checkout-dialog');
       document.getElementById('privacy-checkout-close').addEventListener('click', function () { privacyDialog.close(); });
       document.getElementById('privacy-checkout-cancel').addEventListener('click', function () { privacyDialog.close(); });
-      document.getElementById('privacy-checkout-payjsr').addEventListener('click', function () {
+      document.getElementById('privacy-checkout-pay').addEventListener('click', function () {
         privacyDialog.close();
         if (currentVideo && !currentVideo.is_free) {
           startCheckout(currentVideo.price, null, currentVideo.title, currentVideo.id);

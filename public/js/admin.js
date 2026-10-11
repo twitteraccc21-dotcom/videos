@@ -373,6 +373,7 @@ function purchaseProvider(row) {
   const raw = String(pickPurchaseField(row, ['payment_method', 'provider', 'source', 'method'], '')).toLowerCase();
   if (raw.includes('paypal')) return 'PayPal';
   if (raw.includes('payjsr')) return 'PayJSR';
+  if (raw.includes('walled')) return 'Walled';
   if (raw.includes('whop') || raw === 'who') return 'Whop';
   if (raw) return raw;
   return '—';

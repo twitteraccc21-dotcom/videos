@@ -2,7 +2,7 @@
   "name": "videos-storefront",
   "version": "1.0.0",
   "type": "module",
-  "description": "Video storefront with PayJSR checkout",
+  "description": "Video storefront with Walled checkout",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
