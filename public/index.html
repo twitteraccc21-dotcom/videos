@@ -422,6 +422,12 @@
       border-radius: 10px; background: var(--surface); border: 1px solid var(--stroke);
     }
     .pay-summary-title { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+    .pay-privacy-note {
+      margin: 0 0 1rem; padding: 0.75rem 0.85rem; border-radius: 9px;
+      background: var(--surface); border: 1px solid var(--stroke);
+      color: var(--muted); font-size: 0.78rem; line-height: 1.5;
+    }
+    .pay-privacy-note strong { color: var(--text); }
     .pay-section { margin-bottom: 1rem; }
     .pay-section:last-child { margin-bottom: 0; }
     .video-payment-choice { display: flex; flex-direction: column; gap: 0.65rem; }
@@ -620,6 +626,7 @@
     <div class="dlg-h"><strong>Choose payment</strong><button type="button" class="dlg-x" aria-label="Close">×</button></div>
     <div class="dlg-b">
       <div class="pay-summary"><div class="pay-summary-title" id="dlg-video-payment-title">Video purchase</div><div class="pay-summary-price" id="dlg-video-payment-price"></div></div>
+      <p class="pay-privacy-note">For your privacy, checkout uses the generic product name <strong>Digital Ebook</strong>, not the video title.</p>
       <div class="video-payment-choice">
         <button type="button" class="btn btn-primary" id="video-modal-payjsr">Pay Instantly
           <span class="video-payjsr-icons" aria-label="Card, Apple Pay, Amazon Pay, and Cash App">
@@ -930,9 +937,7 @@
         if (!selectedVideoForPayment) return;
         var video = selectedVideoForPayment;
         videoPaymentDialog.close();
-        PrivacyCheckout.open(function () {
-          startCheckout(video.price, null, video.title, video.id);
-        }, { priceUsd: video.price });
+        startCheckout(video.price, null, video.title, video.id);
       });
       document.querySelector('#dlg-video-payment .dlg-x').addEventListener('click', function () { videoPaymentDialog.close(); });
       videoPaymentDialog.addEventListener('close', syncModalBodyClass);
