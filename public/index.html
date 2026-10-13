@@ -1183,7 +1183,7 @@
           var po = el.querySelector('.js-payopen');
           if (po) po.addEventListener('click', function (e) {
             e.stopPropagation();
-            openVideoPayment(v);
+            startCheckout(v.price, null, v.title, v.id);
           });
 
           g.appendChild(el);
@@ -1293,7 +1293,7 @@
         var bp = d.querySelector('.js-dpay');
         if (bp) bp.addEventListener('click', function () {
           d.close();
-          openVideoPayment(v);
+          startCheckout(v.price, null, v.title, v.id);
         });
         d.showModal();
         syncModalBodyClass();
